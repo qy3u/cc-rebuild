@@ -100,7 +100,7 @@ impl Build {
 
             match std::fs::read_to_string(file) {
                 Ok(content) => {
-                    let deps = crate::parse::cpp_dep(&content);
+                    let deps = crate::parse::cpp_includes(&content);
                     all_deps.extend(deps);
                 }
                 Err(_) => {

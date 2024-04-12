@@ -1,4 +1,16 @@
-use std::path::{Path, PathBuf};
+pub(crate) fn cpp_includes(content: &str) -> Vec<String> {
+    let mut includes = Vec::new();
+
+    for line in content.split("\n") {
+        if line.contains("#include") {
+            if let Some(d) = parse_include(line) {
+                includes.push(d);
+            }
+        }
+    }
+
+    includes
+}
 
 fn parse_include(line: &str) -> Option<String> {
     let line = line.trim_start();
@@ -42,20 +54,6 @@ fn parse_include(line: &str) -> Option<String> {
     }
 }
 
-pub(crate) fn cpp_dep(content: &str) -> Vec<String> {
-    let mut includes = Vec::new();
-
-    for line in content.split("\n") {
-        if line.contains("#include") {
-            if let Some(d) = parse_include(line) {
-                includes.push(d);
-            }
-        }
-    }
-
-    includes
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -83,7 +81,7 @@ int main() {
 }
         "#;
 
-        let deps = cpp_dep(content);
+        let deps = cpp_includes(content);
         assert_eq!(&deps[0], "stdio.h");
         assert_eq!(&deps[1], "somelib.h");
         assert_eq!(&deps[2], "culib.cuh");
